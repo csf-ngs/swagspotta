@@ -6,6 +6,7 @@ class PythonRenderer(RendererBase):
   template_dir = 'python'
   models_tpl = 'models.py.j2'
   class_tpl = 'class.py.j2'
+  ext = 'py'
 
   def render(self, classes: typing.List[str], definitions: dict) -> typing.Text:
     class_defs: typing.List[typing.Text] = []
@@ -22,7 +23,7 @@ class PythonRenderer(RendererBase):
 
   def render_class(self, classname, schema) -> typing.Text:
     def field_def(name: str, prop_def: dict):
-      field = { 'name': prop, 'is_reference': False, 'readonly': False, 'multi': False }
+      field = { 'name': name, 'is_reference': False, 'readonly': False, 'multi': False }
       if '$ref' in prop_def:
         ref = prop_def['$ref'].replace('#/definitions/', '').replace('Schema', '')
         field['type'] = ref
@@ -52,7 +53,7 @@ class PythonRenderer(RendererBase):
         field['readonly'] = True
       return field
 
-    template = self.get_class_template()
+    template = self.get_class_template(classname)
     fields = []
     for name, prop in schema.get('properties', {}).items():
       field = field_def(name, prop)

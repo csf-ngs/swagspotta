@@ -1,8 +1,43 @@
 {% macro deserialize(fields) %}
+{%- for field in fields %}
+  {%- if field.is_reference -%}
+    {% if field.multi -%}
+  obj.{{ field.name }} = [ plainTo{{ field.type }}(o) for o in json['{{ field.name }}']]
+    {% else -%}
+  obj.{{ field.name }} = plainTo{{field.type}}(json['{{ field.name }}'])
+    {% endif -%}
+  {% elif field.type == 'datetime' -%}
+  obj.{{ field.name }} = datetime.fromisoformat(json.get('{{ field.name }}', '')) if json.get('{{ field.name }}') else None
+  {% elif field.type == 'bool' -%}
+  obj.{{ field.name }} = bool(json['{{ field.name }}'])
+  {% else -%}
+  obj.{{ field.name }} = json['{{ field.name }}']
+  {% endif -%}
+{% endfor -%}
 {% endmacro %}
 
 {% macro serialize(fields) %}
+{%- for field in fields %}
+  {%- if field.type == 'datetime' -%}
+  json['{{ field.name }}'] = obj.{{ field.name }}.isoformat() if obj.{{ field.name }} else None
+  {% elif field.is_reference -%}
+    {% if field.multi -%}
+  json['{{ field.name }}'] = [ serialize{{ field.type }}(o) for o in obj.{{ field.name }} ] if obj.{{ field.name }} is not None else []
+    {% else -%}
+  json['{{ field.name }}'] = serialize{{field.type }}(obj.{{ field.name }}) if obj.{{ field.name }} is not None else None
+    {% endif -%}
+  {% else -%}
+  json['{{ field.name }}'] = obj.{{ field.name }}
+  {% endif -%}
+{% endfor -%}
 {% endmacro %}
 
 {% macro auto_attributes(fields) %}
+{%- for field in fields %}
+  {%- if field.multi -%}
+  {{ field.name }}: list[{{ field.type }}] = field(default_factory=list)
+  {% else -%} 
+  {{ field.name }}: typing.Optional[{{ field.type }}]
+  {% endif -%}
+{% endfor -%}
 {% endmacro %}
