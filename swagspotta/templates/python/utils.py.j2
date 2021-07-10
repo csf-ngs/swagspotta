@@ -37,7 +37,7 @@
   {%- if field.multi -%}
   {{ field.name }}: list[{{ field.type }}] = field(default_factory=list)
   {% else -%} 
-  {{ field.name }}: typing.Optional[{{ field.type }}]
+  {{ field.name }}: typing.Optional[{{ field.type }}] = None
   {% endif -%}
 {% endfor -%}
 {% endmacro %}
