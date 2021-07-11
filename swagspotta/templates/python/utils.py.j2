@@ -1,11 +1,11 @@
 {% macro deserialize(fields) %}
 {%- for field in fields %}
   {%- if field.is_reference -%}
-    {% if field.multi -%}
+    {%- if field.multi -%}
   obj.{{ field.name }} = [ plainTo{{ field.type }}(o) for o in json['{{ field.name }}']]
-    {% else -%}
+    {%- else %}
   obj.{{ field.name }} = plainTo{{field.type}}(json['{{ field.name }}'])
-    {% endif -%}
+    {%- endif %}
   {% elif field.type == 'datetime' -%}
   obj.{{ field.name }} = datetime.fromisoformat(json.get('{{ field.name }}', '')) if json.get('{{ field.name }}') else None
   {% elif field.type == 'bool' -%}
@@ -21,11 +21,11 @@
   {%- if field.type == 'datetime' -%}
   json['{{ field.name }}'] = obj.{{ field.name }}.isoformat() if obj.{{ field.name }} else None
   {% elif field.is_reference -%}
-    {% if field.multi -%}
+    {%- if field.multi -%}
   json['{{ field.name }}'] = [ serialize{{ field.type }}(o) for o in obj.{{ field.name }} ] if obj.{{ field.name }} is not None else []
-    {% else -%}
+    {%- else %}
   json['{{ field.name }}'] = serialize{{field.type }}(obj.{{ field.name }}) if obj.{{ field.name }} is not None else None
-    {% endif -%}
+    {%- endif %}
   {% else -%}
   json['{{ field.name }}'] = obj.{{ field.name }}
   {% endif -%}
