@@ -44,6 +44,7 @@ setup(
     keywords='swagspotta',
     name='swagspotta',
     packages=find_packages(include=['swagspotta', 'swagspotta.*']),
+    package_data={'swagspotta': ['templates/*/*']},
     test_suite='tests',
     tests_require=test_requirements,
     url='https://ngs.vbcf.ac.at/repo/software/swagspotta.git',
