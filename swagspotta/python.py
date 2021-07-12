@@ -21,6 +21,8 @@ class PythonRenderer(RendererBase):
         field['type'] = 'int'
       elif prop_def['type'] == 'float':
         field['type'] = 'float'
+      elif prop_def['type'] == 'number':
+        field['type'] = 'int' # technically incorrect
       elif prop_def['type'] == 'object':
         field['type'] = 'dict'
       elif prop_def['type'] == 'array':
