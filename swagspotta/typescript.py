@@ -9,7 +9,7 @@ class TypescriptRenderer(RendererBase):
   class_tpl = 'class.ts.j2'
   ext = 'ts'
 
-  def render_class(self, classname, schema) -> typing.Text:
+  def render_class(self, classname, schema) -> typing.Tuple[typing.Text, typing.List[dict]]:
     def field_def(name: str, prop_def: dict):
       field = { 'name': name, 'is_reference': False, 'readonly': False, 'multi': False }
       if '$ref' in prop_def:
@@ -40,4 +40,4 @@ class TypescriptRenderer(RendererBase):
     for name, prop in schema.get('properties', {}).items():
       field = field_def(name, prop)
       fields.append(field)
-    return template.render(classname=classname, fields=fields)
+    return template.render(classname=classname, fields=fields), fields

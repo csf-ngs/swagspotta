@@ -41,19 +41,33 @@ class RendererBase(ABC):
 
   def render(self, classes: typing.List[str], definitions: dict) -> typing.Text:
     class_defs: typing.List[typing.Text] = []
+    all_defs = {}
     for classname in classes:
       schema_name = f"{classname}Schema"
       if not schema_name in definitions:
         raise Exception(f"schema {schema_name} not found in definitions")
       logger.debug(f"Rendering {classname}")
-      class_out = self.render_class(classname, definitions[schema_name])
+      class_out, field_defs = self.render_class(classname, definitions[schema_name])
       class_defs.append(class_out)
+      all_defs[classname]=field_defs
+
+    logger.debug(f"Checking references...")
+    refs = {}
+    for classname, fdefs in all_defs.items():
+      for fdef in fdefs:
+        if fdef['is_reference']:
+          refs[fdef['type']]=classname
+    for classname in all_defs.keys():
+      refs.pop(classname, None)
+    for classname, referencing in refs.items():
+      logger.warn(f"{classname} referenced by {referencing} is not rendered")
+
     logger.debug(f"Rendering models...")
     template = self.get_models_template()
     return template.render(classes=class_defs)
   
   @abstractmethod
-  def render_class(self, classname, schema) -> typing.Text:
+  def render_class(self, classname, schema) -> typing.Tuple[typing.Text, dict]:
     pass
 
   def _try_load(self, tpl: str, default: str) -> Template:
