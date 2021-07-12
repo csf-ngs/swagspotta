@@ -6,7 +6,7 @@
       {% else -%}
         if (!_isNil(json['{{field.name}}'])) obj.{{field.name}} = plainTo{{field.type}}(json['{{field.name}}']);
       {% endif -%}
-    {% elif field.type == 'Date | null' -%}
+    {% elif field.type == 'Date' or field.type == 'Date | null' -%}
       {% if field.multi -%}
         obj.{{field.name}} = _isNil(json['{{field.name}}']) ? [] : _map(json['{{field.name}}'], d => new Date(d));
       {% else -%}
@@ -27,7 +27,7 @@
         {% else -%}
           if (unroll) json['{{field.name}}'] = _isNil(obj.{{field.name}}) ? null : serialize{{field.type}}(obj.{{field.name}});
         {% endif -%}
-      {% elif field.type == 'Date | null' -%}
+      {% elif field.type == 'Date' or field.type == 'Date | null' -%}
         {% if field.multi %}
           json['{{field.name}}'] = _isNil(obj.{{field.name}}) ? [] : _map(obj.{{field.name}}, d => d.toJSON());
         {% else -%}
