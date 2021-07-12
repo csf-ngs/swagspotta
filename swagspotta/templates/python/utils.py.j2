@@ -2,16 +2,18 @@
 {%- for field in fields %}
   {%- if field.is_reference -%}
     {%- if field.multi -%}
-  obj.{{ field.name }} = [ plainTo{{ field.type }}(o) for o in json['{{ field.name }}']]
+  obj.{{ field.name }} = [ plainTo{{ field.type }}(o) for o in json.get('{{ field.name }}', [])]
     {%- else %}
-  obj.{{ field.name }} = plainTo{{field.type}}(json['{{ field.name }}'])
+  obj.{{ field.name }} = plainTo{{field.type}}(json['{{ field.name }}']) if json.get('{{ field.name }}') else None
     {%- endif %}
   {% elif field.type == 'datetime' -%}
-  obj.{{ field.name }} = datetime.fromisoformat(json.get('{{ field.name }}', '')) if json.get('{{ field.name }}') else None
+  obj.{{ field.name }} = datetime.fromisoformat(json['{{ field.name }}']) if json.get('{{ field.name }}') else None
   {% elif field.type == 'bool' -%}
-  obj.{{ field.name }} = bool(json['{{ field.name }}'])
+  obj.{{ field.name }} = bool(json['{{ field.name }}']) if json.get('{{ field.name }}') else None
+  {% elif field.multi %}
+  obj.{{ field.name }} = json.get('{{ field.name }}', [])
   {% else -%}
-  obj.{{ field.name }} = json['{{ field.name }}']
+  obj.{{ field.name }} = json.get('{{ field.name }}')
   {% endif -%}
 {% endfor -%}
 {% endmacro %}
