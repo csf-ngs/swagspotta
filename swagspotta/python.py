@@ -3,12 +3,23 @@ import typing
 from .util import logger
 
 class PythonRenderer(RendererBase):
-  template_dir = 'python'
-  models_tpl = 'models.py.j2'
-  class_tpl = 'class.py.j2'
-  ext = 'py'
+  @property 
+  def template_dir(self): 
+    return 'python'
 
-  def render_class(self, classname, schema) -> typing.Tuple[typing.Text, typing.List[dict]]:
+  @property
+  def models_tpl(self):
+    return 'models.py.j2'
+  
+  @property
+  def class_tpl(self):
+    return 'class.py.j2'
+  
+  @property
+  def ext(self):
+    return 'py'
+
+  def render_class(self, classname, schema) -> typing.Tuple[typing.Optional[str], typing.List[dict]]:
     def field_def(name: str, prop_def: dict):
       field = { 'name': name, 'is_reference': False, 'readonly': False, 'multi': False }
       if '$ref' in prop_def:

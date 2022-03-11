@@ -4,12 +4,23 @@ import typing
 
 
 class TypescriptRenderer(RendererBase):
-  template_dir = 'typescript'
-  models_tpl = 'models.ts.j2'
-  class_tpl = 'class.ts.j2'
-  ext = 'ts'
+  @property 
+  def template_dir(self): 
+    return 'typescript'
 
-  def render_class(self, classname, schema) -> typing.Tuple[typing.Text, typing.List[dict]]:
+  @property
+  def models_tpl(self):
+    return 'models.ts.j2'
+  
+  @property
+  def class_tpl(self):
+    return 'class.ts.j2'
+  
+  @property
+  def ext(self):
+    return 'ts'
+
+  def render_class(self, classname, schema) -> typing.Tuple[typing.Optional[str], typing.List[dict]]:
     def field_def(name: str, prop_def: dict):
       field = { 'name': name, 'is_reference': False, 'readonly': False, 'multi': False }
       if '$ref' in prop_def:

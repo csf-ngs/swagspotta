@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 from jinja2 import Environment, PackageLoader, FileSystemLoader
 import os.path
 import shutil
@@ -39,8 +39,8 @@ class RendererBase(ABC):
     pass
 
 
-  def render(self, classes: typing.List[str], definitions: dict) -> typing.Text:
-    class_defs: typing.List[typing.Text] = []
+  def render(self, classes: typing.List[str], definitions: dict) -> typing.Optional[str]:
+    class_defs: typing.List[str] = []
     all_defs = {}
     for classname in classes:
       schema_name = f"{classname}Schema"
@@ -48,7 +48,8 @@ class RendererBase(ABC):
         raise Exception(f"schema {schema_name} not found in definitions")
       logger.debug(f"Rendering {classname}")
       class_out, field_defs = self.render_class(classname, definitions[schema_name])
-      class_defs.append(class_out)
+      if class_out is not None:
+        class_defs.append(class_out)
       all_defs[classname]=field_defs
 
     logger.debug(f"Checking references...")
@@ -67,7 +68,7 @@ class RendererBase(ABC):
     return template.render(classes=class_defs)
   
   @abstractmethod
-  def render_class(self, classname, schema) -> typing.Tuple[typing.Text, dict]:
+  def render_class(self, classname, schema) -> typing.Tuple[typing.Optional[str], dict]:
     pass
 
   def _try_load(self, tpl: str, default: str) -> Template:
@@ -77,7 +78,7 @@ class RendererBase(ABC):
       except TemplateNotFound:
         logger.debug(f"copy {default} to {tpl}")
         _, fullpath, _ = self.loader.get_source(self.env, os.path.join(self.template_dir, default))
-        shutil.copyfile(fullpath, os.path.join(self.class_template_dir, tpl))
+        shutil.copyfile(typing.cast(str, fullpath), os.path.join(self.class_template_dir, tpl))
         template = self.class_loader.load(self.env, tpl)
     else:
       template = self.env.get_template(os.path.join(self.template_dir, default))
