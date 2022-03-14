@@ -26,7 +26,7 @@ def cli(ctx, swagger):
 @click.pass_obj
 def guess_classes(obj):
   for name in obj['definitions'].keys():
-    if re.search(r'(Response|Request)Schema', name) or re.search(r'(Create|Update|Post)Schema', name):
+    if re.search(r'(Response|Request)(Schema)?$', name) or re.search(r'(Create|Update|Post)Schema$', name):
       continue
     click.echo(f"-c {name}")
 
