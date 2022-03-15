@@ -2,7 +2,9 @@
 {%- for field in fields %}
   {%- if field.is_reference -%}
     {%- if field.multi -%}
-  obj.{{ field.name }} = [ plainTo{{ field.type }}(o) for o in json.get('{{ field.name }}', [])]
+  obj.{{ field.name }} = [ 
+    plainTo{{ field.type }}(o) for o in (json['{{ field.name }}'] if json.get('{{ field.name }}') is not None and isinstance(json['{{ field.name }}'], list) else [])
+  ]
     {%- else %}
   obj.{{ field.name }} = plainTo{{field.type}}(json['{{ field.name }}']) if json.get('{{ field.name }}') is not None else None
     {%- endif %}
@@ -11,7 +13,7 @@
   {% elif field.type == 'bool' -%}
   obj.{{ field.name }} = bool(json['{{ field.name }}']) if json.get('{{ field.name }}') is not None else None
   {% elif field.multi %}
-  obj.{{ field.name }} = json.get('{{ field.name }}', [])
+  obj.{{ field.name }} = json['{{ field.name }}'] if json.get('{{ field.name }}') is not None and isinstance(json['{{ field.name }}'], list) else []
   {% else -%}
   obj.{{ field.name }} = json.get('{{ field.name }}')
   {% endif -%}
