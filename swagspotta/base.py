@@ -44,10 +44,10 @@ class RendererBase(ABC):
     all_defs = {}
     for classname in classes:
       schema_name = f"{classname}Schema"
-      if not schema_name in definitions:
-        raise Exception(f"schema {schema_name} not found in definitions")
+      if not schema_name in definitions and not classname in definitions:
+        raise Exception(f"schema {classname}/{schema_name} not found in definitions")
       logger.debug(f"Rendering {classname}")
-      class_out, field_defs = self.render_class(classname, definitions[schema_name])
+      class_out, field_defs = self.render_class(classname, definitions.get(schema_name, definitions.get(classname)))
       if class_out is not None:
         class_defs.append(class_out)
       all_defs[classname]=field_defs
