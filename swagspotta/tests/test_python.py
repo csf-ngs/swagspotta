@@ -1,5 +1,9 @@
+from contextlib import contextmanager
+import typing
 from .base import TestBase
 from swagspotta.python import PythonRenderer
+import os
+
 
 class TestPython(TestBase):
   def setUp(self):
@@ -17,21 +21,6 @@ class TestPython(TestBase):
       'multi': False,
       'type': 'int'
     }, id_field)
-  
-  def test_example_types(self):
-    defs = self._load_example()
-    _, fields = self.renderer.render_class('User', defs['definitions']['User'])
-    field_types = { f['name']: f['type'] for f in fields}
-    self.assertDictEqual({
-      'id': 'int',
-      'username': 'str',
-      'firstName': 'str',
-      'lastName': 'str',
-      'email': 'str',
-      'password': 'str',
-      'phone': 'str',
-      'userStatus': 'int',
-    }, field_types)
   
   def test_types_int(self):
     _, fields = self.renderer.render_class('User', {
@@ -270,8 +259,118 @@ class TestPython(TestBase):
     }, fields[0])
 
 
+  def test_example_types(self):
+    defs = self._load_example()
+    _, fields = self.renderer.render_class('User', defs['definitions']['User'])
+    field_types = { f['name']: f['type'] for f in fields}
+    self.assertDictEqual({
+      'id': 'int',
+      'username': 'str',
+      'firstName': 'str',
+      'lastName': 'str',
+      'email': 'str',
+      'password': 'str',
+      'phone': 'str',
+      'userStatus': 'int',
+    }, field_types)
+  
   
   def test_example_refs(self):
     defs = self._load_example()
     _, fields = self.renderer.render_class('Pet', defs['definitions']['Pet'])
-    #print(fields)
+    refs = [ f for f in fields if f['is_reference'] ]
+    self.assertCountEqual(refs, [
+      { 'name': 'category', 'is_reference': True, 'readonly': False, 'multi': False, 'type': 'Category' },
+      { 'name': 'tags', 'is_reference': True, 'readonly': False, 'multi': True, 'type': 'Tag' },
+    ])
+  
+  @contextmanager
+  def _render_models(self):
+    defs = self._load_example()
+    src = self.renderer.render(classes=[
+      'User', 'Category', 'Tag', 'Pet'
+    ], definitions=defs['definitions'])
+    self.assertIsNotNone(src)
+    src=typing.cast(str, src)
+
+    with open(os.path.join(self.get_self_dir(), 'model.py'), 'w') as outfh:
+      outfh.write(src)
+    yield
+
+    os.unlink(os.path.join(self.get_self_dir(), 'model.py'))
+
+  def test_rendered_user(self):
+    with self._render_models():
+      # it's ok if your IDE shows an error here, the module file is wrritten by the 
+      # contextmanager
+      from .model import User, plainToUser, serializeUser
+
+    struct = {
+      'id': 12,
+      'username': 'test.hase',
+      'email': 'test.hase@testha.se',
+      'firstName': 'Test',
+      'lastName': 'Hase',
+      'password': 'geheim',
+      'phone': None,
+      'userStatus': 0,
+    }
+    user = plainToUser(json=struct)
+    self.assertIsInstance(user, User)
+    self.assertEqual(user.id, 12)
+    self.assertEqual(user.username, 'test.hase')
+    self.assertIsNone(user.phone)
+
+    serialized = serializeUser(user)
+    self.assertDictEqual(serialized, struct)
+  
+  def test_rendered_pet(self):
+    with self._render_models():
+      from .model import Pet, plainToPet, serializePet, Category, Tag
+    
+    struct = {
+      'id': 12,
+      'category': {
+        'id': 100,
+        'name': 'testhase',
+      },
+      'name': 'Hase Test',
+      'status': 'doing good',
+      'photoUrls': [ 'eins', 'zwei', 'drei' ],
+      'tags': [
+        { 'id': 13, 'name': 'cute', },
+        { 'id': 14, 'name': 'brown', },
+      ]
+    }
+    pet = plainToPet(struct)
+    self.assertIsInstance(pet, Pet)
+    self.assertIsInstance(pet.category, Category)
+    self.assertListEqual(pet.photoUrls, struct['photoUrls'])
+    self.assertIsInstance(pet.tags[0], Tag)
+
+    serialized = serializePet(pet)
+    self.assertDictEqual(serialized, struct)
+
+    struct['photoUrls'] = None
+    self.assertListEqual(plainToPet(struct).photoUrls, [])
+    struct['photoUrls'] = 'oink'
+    self.assertListEqual(plainToPet(struct).photoUrls, [])
+    struct.pop('photoUrls')
+    self.assertListEqual(plainToPet(struct).photoUrls, [])
+
+    struct['tags'] = None
+    self.assertListEqual(plainToPet(struct).tags, [])
+    struct['tags'] = 'something'
+    self.assertListEqual(plainToPet(struct).tags, [])
+    struct.pop('tags')
+    self.assertListEqual(plainToPet(struct).tags, [])
+
+
+
+
+  
+  @classmethod
+  def tearDownClass(cls):
+    #os.unlink(os.path.join(cls.get_self_dir(), 'model.py'))
+    pass
+
