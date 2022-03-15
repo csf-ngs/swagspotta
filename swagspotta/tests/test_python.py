@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from datetime import datetime
 import typing
 from .base import TestBase
 from swagspotta.python import PythonRenderer
@@ -288,7 +289,7 @@ class TestPython(TestBase):
   def _render_models(self):
     defs = self._load_example()
     src = self.renderer.render(classes=[
-      'User', 'Category', 'Tag', 'Pet'
+      'User', 'Category', 'Tag', 'Pet', 'Order'
     ], definitions=defs['definitions'])
     self.assertIsNotNone(src)
     src=typing.cast(str, src)
@@ -323,6 +324,20 @@ class TestPython(TestBase):
 
     serialized = serializeUser(user)
     self.assertDictEqual(serialized, struct)
+  
+  def test_rendered_datetime(self):
+    with self._render_models():
+      from .model import serializeOrder, plainToOrder
+    
+    struct = {
+      'shipDate': "2021-07-27T09:46:50.598511+00:00",
+    }
+    order = plainToOrder(struct)
+    self.assertIsInstance(order.shipDate, datetime)
+    self.assertEqual(str(order.shipDate), '2021-07-27 09:46:50.598511+00:00')
+
+    serialized = serializeOrder(order)
+    self.assertEqual(serialized['shipDate'], struct['shipDate'])
   
   def test_rendered_pet(self):
     with self._render_models():
@@ -364,13 +379,3 @@ class TestPython(TestBase):
     self.assertListEqual(plainToPet(struct).tags, [])
     struct.pop('tags')
     self.assertListEqual(plainToPet(struct).tags, [])
-
-
-
-
-  
-  @classmethod
-  def tearDownClass(cls):
-    #os.unlink(os.path.join(cls.get_self_dir(), 'model.py'))
-    pass
-
