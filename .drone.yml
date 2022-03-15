@@ -1,0 +1,16 @@
+---
+name: swagspotta
+type: docker
+kind: pipeline
+
+steps:
+- name: fetch
+  image: drone/git
+  commands:
+    - git fetch --tags
+- name: testhase
+  image: python:3.8
+  commands:
+  - pip3 install nose2
+  - pip3 install --no-cache-dir -e .
+  - nose2
