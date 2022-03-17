@@ -105,3 +105,9 @@ env.bak/
 venv.bak/
 
 tmp/
+
+swagspotta/tests/model.js
+swagspotta/tests/model.ts
+swagspotta/tests/model.py
+node_modules/
+package*.json
