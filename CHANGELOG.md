@@ -1,3 +1,9 @@
+# v0.0.4 (next)
+
+- fix python list de/serialization
+- internal: fix typings
+- internal: unit/integration tests
+
 # v0.0.3 (2022-03-11)
 
 - bugfix False/''/0/None serialization
