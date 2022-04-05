@@ -1,4 +1,4 @@
-# v0.0.4 (next)
+# v0.0.4 (2022-04-05)
 
 - disable eslint unused parameter warning for serialize
 - fix crash on invalid swagger json
