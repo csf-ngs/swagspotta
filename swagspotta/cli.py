@@ -19,7 +19,7 @@ def cli(ctx, swagger):
   """Spotta - spit out classes from swagger/openapi2 defs"""
   swagger = json.load(swagger)
   if not 'definitions' in swagger:
-    raise click.ClickException(f"no definitions in {swagger.name}")
+    raise click.ClickException(f"no definitions in {swagger.get('name', '[no name!]')}")
   ctx.obj = swagger
 
 @cli.command(short_help='guess classes')
