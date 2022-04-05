@@ -1,5 +1,6 @@
 # v0.0.4 (next)
 
+- disable eslint unused parameter warning for serialize
 - fix crash on invalid swagger json
 - fix python list de/serialization
 - internal: fix typings
