@@ -1,5 +1,6 @@
 # v0.0.4 (next)
 
+- fix crash on invalid swagger json
 - fix python list de/serialization
 - internal: fix typings
 - internal: unit/integration tests
