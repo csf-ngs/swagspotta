@@ -48,7 +48,7 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://ngs.vbcf.ac.at/repo/software/swagspotta.git',
-    version='0.0.3',
+    version='0.0.4',
     zip_safe=False,
     entry_points={
         'console_scripts': [
