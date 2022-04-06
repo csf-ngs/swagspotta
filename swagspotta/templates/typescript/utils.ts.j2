@@ -34,7 +34,7 @@
           json['{{field.name}}'] = _isNil(obj.{{field.name}}) ? null : obj.{{field.name}}.toJSON();
         {% endif -%}
       {% else -%}
-        json['{{field.name}}'] = obj.{{field.name}}
+        json['{{field.name}}'] = obj.{{field.name}};
       {% endif -%}
     {% endif -%}
   {% endfor %}

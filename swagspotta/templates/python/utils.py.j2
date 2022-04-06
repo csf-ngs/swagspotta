@@ -22,6 +22,7 @@
 
 {% macro serialize(fields) %}
 {%- for field in fields %}
+  {%- if not field.readonly -%}
   {%- if field.type == 'datetime' -%}
   json['{{ field.name }}'] = obj.{{ field.name }}.isoformat() if obj.{{ field.name }} else None
   {% elif field.is_reference -%}
@@ -33,6 +34,7 @@
   {% else -%}
   json['{{ field.name }}'] = obj.{{ field.name }}
   {% endif -%}
+  {%- endif -%}
 {% endfor -%}
 {% endmacro %}
 

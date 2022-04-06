@@ -20,7 +20,7 @@ class TestTypescript(TestBase):
 
     with open(os.path.join(self.get_self_dir(), 'model.ts'), 'w') as outfh:
       outfh.write(src)
-    yield
+    yield src
 
     os.unlink(os.path.join(self.get_self_dir(), 'model.ts'))
 
@@ -298,6 +298,16 @@ class TestTypescript(TestBase):
       { 'name': 'category', 'is_reference': True, 'readonly': False, 'multi': False, 'type': 'Category' },
       { 'name': 'tags', 'is_reference': True, 'readonly': False, 'multi': True, 'type': 'Tag' },
     ])
+  
+  def test_readonly_serialize(self):
+    defs = self._load_example()
+    code, fields = self.renderer.render_class('Pet', defs['definitions']['Pet'])
+    ro = next(f for f in fields if f['name'] == 'color')
+    self.assertTrue(ro['readonly'])
+    self.assertIsNotNone(code)
+    self.assertRegex(code, r"obj\.color = json\['color'\];")
+    self.assertNotRegex(code, r"json\['color'\] = obj\.color;")
+    
   
   def test_rendered(self):
     with self._render_models():

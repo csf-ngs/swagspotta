@@ -293,6 +293,7 @@ class TestPython(TestBase):
     ], definitions=defs['definitions'])
     self.assertIsNotNone(src)
     src=typing.cast(str, src)
+    print(src)
 
     with open(os.path.join(self.get_self_dir(), 'model.py'), 'w') as outfh:
       outfh.write(src)
