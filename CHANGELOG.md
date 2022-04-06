@@ -1,3 +1,7 @@
+# v0.0.5 (2022-04-06)
+
+- do not serialize readonly fields in python
+
 # v0.0.4 (2022-04-05)
 
 - disable eslint unused parameter warning for serialize
