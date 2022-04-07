@@ -111,3 +111,4 @@ swagspotta/tests/model.ts
 swagspotta/tests/model.py
 node_modules/
 package*.json
+test_report.html
