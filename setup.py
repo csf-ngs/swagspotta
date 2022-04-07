@@ -20,7 +20,7 @@ requirements = [
     'Jinja2',
 ]
 
-test_requirements = [ 'coverage', 'nose2' ]
+test_requirements = [ 'coverage', 'nose2', 'nose2-html-report', 'nose2[coverage_plugin]' ]
 
 setup(
     author="Heinz Axelsson-Ekker",
@@ -46,7 +46,6 @@ setup(
     packages=find_packages(include=['swagspotta', 'swagspotta.*']),
     package_data={'swagspotta': ['templates/*/*']},
     test_suite='tests',
-    tests_require=test_requirements,
     url='https://ngs.vbcf.ac.at/repo/software/swagspotta.git',
     version='0.0.5',
     zip_safe=False,
@@ -55,4 +54,7 @@ setup(
             'spotta = swagspotta.cli:cli',
         ],
     },
+    extras_require={
+        'test': test_requirements,
+    }
 )
