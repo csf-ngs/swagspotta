@@ -43,6 +43,9 @@ class RendererBase(ABC):
     class_defs: typing.List[str] = []
     all_defs = {}
     for classname in classes:
+      if classname in all_defs:
+        logger.warn(f"Class {classname} already rendered, skipping")
+        continue
       schema_name = f"{classname}Schema"
       if not schema_name in definitions and not classname in definitions:
         raise Exception(f"schema {classname}/{schema_name} not found in definitions")

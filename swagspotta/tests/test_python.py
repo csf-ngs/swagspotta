@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from datetime import datetime
+import re
 import typing
 from .base import TestBase
 from swagspotta.python import PythonRenderer
@@ -9,6 +10,15 @@ import os
 class TestPython(TestBase):
   def setUp(self):
     self.renderer = PythonRenderer()
+
+
+  def test_double_class(self):
+    defs = self._load_example()
+    src = self.renderer.render(classes=['User', 'User'], definitions=defs['definitions'])
+    self.assertIsNotNone(src)
+    src=typing.cast(str, src)
+    matches = len(re.findall(r'^class User', src, re.MULTILINE))
+    self.assertEqual(matches, 1)
 
   def test_simple(self):
     defs = self._load_example()
@@ -304,7 +314,7 @@ class TestPython(TestBase):
     with self._render_models():
       # it's ok if your IDE shows an error here, the module file is wrritten by the 
       # contextmanager
-      from .model import User, plainToUser, serializeUser
+      from .model import User, plainToUser, serializeUser # type: ignore
 
     struct = {
       'id': 12,
@@ -327,7 +337,7 @@ class TestPython(TestBase):
   
   def test_rendered_datetime(self):
     with self._render_models():
-      from .model import serializeOrder, plainToOrder
+      from .model import serializeOrder, plainToOrder # type: ignore
     
     struct = {
       'shipDate': "2021-07-27T09:46:50.598511+00:00",
@@ -341,7 +351,7 @@ class TestPython(TestBase):
   
   def test_rendered_pet(self):
     with self._render_models():
-      from .model import Pet, plainToPet, serializePet, Category, Tag
+      from .model import Pet, plainToPet, serializePet, Category, Tag # type: ignore
     
     struct = {
       'id': 12,

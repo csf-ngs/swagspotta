@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+import re
 import typing
 from .base import TestBase
 from swagspotta.typescript import TypescriptRenderer
@@ -23,6 +24,15 @@ class TestTypescript(TestBase):
     yield src
 
     os.unlink(os.path.join(self.get_self_dir(), 'model.ts'))
+
+  def test_double_class(self):
+    defs = self._load_example()
+    src = self.renderer.render(classes=['User', 'User'], definitions=defs['definitions'])
+    self.assertIsNotNone(src)
+    src=typing.cast(str, src)
+    matches = len(re.findall(r'^class User', src, re.MULTILINE))
+    self.assertEqual(matches, 1)
+
 
   def test_simple(self):
     defs = self._load_example()
@@ -305,6 +315,7 @@ class TestTypescript(TestBase):
     ro = next(f for f in fields if f['name'] == 'color')
     self.assertTrue(ro['readonly'])
     self.assertIsNotNone(code)
+    code = typing.cast(str, code)
     self.assertRegex(code, r"obj\.color = json\['color'\];")
     self.assertNotRegex(code, r"json\['color'\] = obj\.color;")
     
