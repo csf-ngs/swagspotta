@@ -47,7 +47,7 @@ setup(
     package_data={'swagspotta': ['templates/*/*']},
     test_suite='tests',
     url='https://ngs.vbcf.ac.at/repo/software/swagspotta.git',
-    version='0.0.5',
+    version='0.0.6',
     zip_safe=False,
     entry_points={
         'console_scripts': [
